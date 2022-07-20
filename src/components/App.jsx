@@ -1,59 +1,59 @@
-import React, { Component } from "react";
-import { GlobalStyle } from "./GlobalStyle";
-import Section from "./Section";
-import FeedbackOptions from "./FeedbackOptions";
-import Statistics from "./Statistics";
-import Notification from "./Notification";
+import { useState } from 'react';
+import { GlobalStyle } from './GlobalStyle';
+import Section from './Section';
+import FeedbackOptions from './FeedbackOptions';
+import Statistics from './Statistics';
+import Notification from './Notification';
 
+export default function App() {
+  const [good, setGood] = useState(0);
+  const [neutral, setNeutral] = useState(0);
+  const [bad, setBad] = useState(0);
 
-class App extends Component {
-  state = {
-    good: 0,
-    neutral: 0,
-    bad: 0  
-  }
-
-  handleIncrement = (evt) => {
+  const handleIncrement = evt => {
     const stateName = evt.currentTarget.name;
-    this.setState(prev => ({ [stateName]: prev[stateName] + 1 }));
-    console.log(evt.currentTarget);
-  }
+    console.dir(evt.currentTarget);
+    switch (stateName) {
+      case 'good':
+        setGood(prev => prev + 1);
+        break;
+      case 'neutral':
+        setNeutral(prev => prev + 1);
+        break;
+      case 'bad':
+        setBad(prev => prev + 1);
+        break;
+      default:
+        return;
+    }
+  };
 
-  countTotalFeedback () {
-    return Object.values(this.state).reduce((total, item) => total + item, 0) 
-       
-       }
+  const countTotalFeedback = () => good + neutral + bad;
 
-       countPositiveFeedbackPercentage  () {
-        return  Math.round((this.state.good / this.countTotalFeedback ()) * 100)
-     }
+  const countPositiveFeedbackPercentage = () => {
+    return Math.round((good / countTotalFeedback()) * 100);
+  };
 
-     
-     render(){
-    const btn = Object.keys(this.state);
-    const { good, neutral, bad } = this.state;
+  const btn = ['good', 'neutral', 'bad'];
 
-    return (
-      <div>
-      <GlobalStyle/>
-      <Section title={"Please leave feedback"}>
-      <FeedbackOptions 
-          options={btn} 
-          onLeaveFeedback={this.handleIncrement}
-      />
-      </Section> 
-        
-      
-      {this.countTotalFeedback ()? <Statistics 
-          good={good} 
-          neutral={neutral} 
-          bad={bad} 
-          total={this.countTotalFeedback()} 
-          positivePercentage={this.countPositiveFeedbackPercentage()}
-       /> : <Notification message={"There is no feedback"}/>}
-      </div>
-    );
-  }
+  return (
+    <div>
+      <GlobalStyle />
+      <Section title={'Please leave feedback'}>
+        <FeedbackOptions options={btn} onLeaveFeedback={handleIncrement} />
+      </Section>
+
+      {countTotalFeedback() ? (
+        <Statistics
+          good={good}
+          neutral={neutral}
+          bad={bad}
+          total={countTotalFeedback()}
+          positivePercentage={countPositiveFeedbackPercentage()}
+        />
+      ) : (
+        <Notification message={'There is no feedback'} />
+      )}
+    </div>
+  );
 }
-
-export default App;
